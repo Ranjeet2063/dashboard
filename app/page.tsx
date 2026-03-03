@@ -1,145 +1,110 @@
 'use client'
 
 import { useState, useMemo } from 'react'
-import { Plus } from 'lucide-react'
-import Link from 'next/link'
 import Sidebar from '@/components/Sidebar'
 import Header from '@/components/Header'
 import SearchBar from '@/components/SearchBar'
-import FilterButtons from '@/components/FilterButtons'
-import PolicyTable from '@/components/PolicyTable'
-import { Policy } from '@/types/policy'
+import GovernanceTable from '@/components/GovernanceTable'
+import Pagination from '@/components/Pagination'
+import Footer from '@/components/Footer'
+import ThemeToggle from '@/components/ThemeToggle'
+import { Filter, Download } from 'lucide-react'
+import { usePolicies } from '@/context/PolicyContext'
 
-// Datos mock de políticas
-const mockPolicies: Policy[] = [
-  {
-    id: '1',
-    name: 'Límite de Recepción de USDT',
-    cryptocurrency: 'USDT',
-    operationType: 'Recepción',
-    limits: { min: 100, max: 5000 },
-    periodicity: 'Diario',
-    status: 'active',
-  },
-  {
-    id: '2',
-    name: 'Máximo de envío de USDT',
-    cryptocurrency: 'USDT',
-    operationType: 'Envío',
-    limits: { min: 0, max: 10000 },
-    periodicity: 'Por Transacción',
-    status: 'active',
-  },
-  {
-    id: '3',
-    name: 'Frecuencia semanal de operaciones',
-    cryptocurrency: 'USDT',
-    operationType: 'Recepción / Envío',
-    limits: { min: null, max: null },
-    periodicity: 'Semanal (Max 5)',
-    status: 'inactive',
-  },
-]
-
-type FilterType = 'all' | 'USDT' | 'active'
+const PAGE_SIZE = 5
 
 export default function PoliciesPage() {
+  const { policies, toggleStatus, deletePolicy } = usePolicies()
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedFilter, setSelectedFilter] = useState<FilterType>('USDT')
-  const [policies, setPolicies] = useState<Policy[]>(mockPolicies)
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [page, setPage] = useState(1)
 
-  // Filtrar políticas según búsqueda y filtro seleccionado
   const filteredPolicies = useMemo(() => {
-    return policies.filter((policy) => {
-      // Filtro de búsqueda
-      const matchesSearch = policy.name
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase())
-
-      // Filtro por criptomoneda o estado
-      let matchesFilter = true
-      if (selectedFilter === 'USDT') {
-        matchesFilter = policy.cryptocurrency === selectedFilter
-      } else if (selectedFilter === 'active') {
-        matchesFilter = policy.status === 'active'
-      }
-
-      return matchesSearch && matchesFilter
-    })
-  }, [policies, searchQuery, selectedFilter])
-
-  const handleToggleStatus = (id: string) => {
-    setPolicies((prev) =>
-      prev.map((policy) =>
-        policy.id === id
-          ? { ...policy, status: policy.status === 'active' ? 'inactive' : 'active' }
-          : policy
-      )
+    if (!searchQuery.trim()) return policies
+    const q = searchQuery.toLowerCase()
+    return policies.filter(
+      (p) =>
+        p.protocol.toLowerCase().includes(q) ||
+        p.policyDescription.toLowerCase().includes(q)
     )
-  }
+  }, [policies, searchQuery])
 
-  const handleEdit = (id: string) => {
-    console.log('Editar política:', id)
-    // Aquí iría la lógica para editar
-  }
-
-  const handleDelete = (id: string) => {
-    if (confirm('¿Estás seguro de eliminar esta política?')) {
-      setPolicies((prev) => prev.filter((policy) => policy.id !== id))
-    }
-  }
-
+  const total = filteredPolicies.length
+  const totalPages = Math.ceil(total / PAGE_SIZE)
+  const safePage = Math.min(page, totalPages || 1)
+  const from = (safePage - 1) * PAGE_SIZE + 1
+  const to = Math.min(safePage * PAGE_SIZE, total)
+  const pagePolicies = useMemo(
+    () => filteredPolicies.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+    [filteredPolicies, safePage]
+  )
 
   return (
     <div className="flex min-h-screen bg-dark-bg">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      
-      <div className="flex-1 lg:ml-64 flex flex-col">
+
+      <div className="flex-1 lg:ml-[240px] flex flex-col min-h-screen">
         <Header onMenuClick={() => setSidebarOpen(true)} />
-        
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-          {/* Header Section */}
-          <div className="mb-6 lg:mb-8">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-              Políticas de Gobernanza AML - Criptoactivos
+
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto flex flex-col">
+          <div className="mb-6">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1">
+              Políticas de Gobernanza
             </h1>
-            <p className="text-sm sm:text-base text-gray-400">
-              Define y gestiona las reglas que controlan las operaciones con criptomonedas
-              para prevenir el lavado de dinero.
+            <p className="text-sm text-gray-400">
+              Manage and monitor protocol-level control parameters.
             </p>
           </div>
 
-          {/* Action Button */}
-          <div className="mb-6">
-            <Link
-              href="/policies/new"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-dark-bg font-medium rounded-lg hover:bg-primary-hover transition-colors"
-            >
-              <Plus size={20} />
-              Crear Nueva Política
-            </Link>
-          </div>
+          <div className="bg-dark-card rounded-card border border-dark-border shadow-card flex flex-col flex-1 min-h-0">
+            <div className="p-4 border-b border-dark-border flex flex-col sm:flex-row gap-3 sm:items-center">
+              <div className="flex-1 w-full">
+                <SearchBar
+                  value={searchQuery}
+                  onChange={(v) => { setSearchQuery(v); setPage(1) }}
+                  placeholder="Search policies or protocols..."
+                />
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-dark-border/80 text-white text-sm font-medium hover:bg-dark-border transition-colors"
+                >
+                  <Filter size={18} />
+                  Filters
+                </button>
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-dark-border/80 text-white text-sm font-medium hover:bg-dark-border transition-colors"
+                >
+                  <Download size={18} />
+                  Export
+                </button>
+              </div>
+            </div>
 
-          {/* Search and Filters */}
-          <div className="mb-6 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <SearchBar value={searchQuery} onChange={setSearchQuery} />
-            <FilterButtons
-              selectedFilter={selectedFilter}
-              onFilterChange={setSelectedFilter}
+            <GovernanceTable
+              policies={pagePolicies}
+              onToggleStatus={toggleStatus}
+              onDelete={deletePolicy}
+            />
+
+            <Pagination
+              from={total === 0 ? 0 : from}
+              to={to}
+              total={total}
+              hasPrev={safePage > 1}
+              hasNext={safePage * PAGE_SIZE < total}
+              onPrev={() => setPage((p) => Math.max(1, p - 1))}
+              onNext={() => setPage((p) => Math.min(totalPages, p + 1))}
             />
           </div>
 
-          {/* Policies Table */}
-          <PolicyTable
-            policies={filteredPolicies}
-            onToggleStatus={handleToggleStatus}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-          />
+          <Footer />
         </main>
       </div>
+
+      <ThemeToggle />
     </div>
   )
 }
-

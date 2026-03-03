@@ -16,3 +16,18 @@ export interface Policy {
   status: Status
 }
 
+/** Governance table row (protocol-level policies) */
+export type GovernanceStatus = 'enabled' | 'disabled'
+
+export interface GovernancePolicy {
+  id: string
+  protocol: string
+  protocolIcon: string  /* single letter or icon key: Blend, Soroban, etc. */
+  protocolColor: string /* tailwind or hex: blue, orange, green */
+  policyDescription: string
+  policyValue: number
+  valueUnit: string     /* e.g. "XLM", "Units" */
+  lastModified: string /* e.g. "Oct 24, 2023" */
+  status: GovernanceStatus
+}
+

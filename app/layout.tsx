@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import { PolicyProvider } from '@/context/PolicyContext'
 
 export const metadata: Metadata = {
   title: 'Fortgate Dashboard - Gestión AML',
@@ -13,8 +14,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body>
+        <PolicyProvider>{children}</PolicyProvider>
+      </body>
     </html>
   )
 }
-
