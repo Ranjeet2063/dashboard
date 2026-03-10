@@ -5,9 +5,9 @@ import {
   FileText,
   BarChart3,
   Settings,
-  HelpCircle,
   User,
   X,
+  LogOut,
 } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -42,7 +42,6 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           isOpen ? 'translate-x-0' : '-translate-x-full'
         } lg:translate-x-0`}
       >
-        {/* Logo FORTGATE (escudo + nombre) */}
         <div className="p-5 border-b border-dark-border flex items-center justify-between">
           <Link href="/" className="flex items-center min-w-0">
             <Image
@@ -96,15 +95,14 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
             <div className="w-8 h-8 rounded-full bg-dark-border flex items-center justify-center shrink-0">
               <User size={16} className="text-gray-400" />
             </div>
-            <span className="text-sm font-medium text-white truncate">Admin User</span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-white truncate">Admin User</p>
+              <p className="text-[11px] text-gray-400 truncate">Super Admin</p>
+            </div>
+            <button className="p-1.5 text-gray-400 hover:text-white transition-colors shrink-0">
+              <LogOut size={16} />
+            </button>
           </div>
-          <Link
-            href="/help"
-            className="flex items-center gap-3 px-3 py-2 text-gray-300 hover:text-white transition-colors rounded-lg"
-          >
-            <HelpCircle size={18} className="shrink-0" />
-            <span className="text-sm">Ayuda</span>
-          </Link>
         </div>
       </aside>
     </>

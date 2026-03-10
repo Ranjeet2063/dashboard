@@ -5,9 +5,10 @@ import Link from 'next/link'
 
 interface HeaderProps {
   onMenuClick?: () => void
+  showAddPolicy?: boolean
 }
 
-export default function Header({ onMenuClick }: HeaderProps) {
+export default function Header({ onMenuClick, showAddPolicy = true }: HeaderProps) {
   return (
     <header className="h-14 lg:h-16 bg-dark-bg border-b border-dark-border flex items-center justify-between px-4 lg:px-6 gap-3">
       <button
@@ -25,13 +26,15 @@ export default function Header({ onMenuClick }: HeaderProps) {
             GD6NG...T55KR
           </span>
         </div>
-        <Link
-          href="/policies/new"
-          className="inline-flex items-center gap-2 px-4 py-2 lg:px-5 lg:py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
-        >
-          <Plus size={18} />
-          Add New Policy
-        </Link>
+        {showAddPolicy && (
+          <Link
+            href="/policies/new"
+            className="inline-flex items-center gap-2 px-4 py-2 lg:px-5 lg:py-2.5 bg-primary hover:bg-primary-hover text-white text-sm font-medium rounded-lg transition-colors shadow-sm"
+          >
+            <Plus size={18} />
+            Add New Policy
+          </Link>
+        )}
       </div>
     </header>
   )

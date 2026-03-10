@@ -22,12 +22,35 @@ export type GovernanceStatus = 'enabled' | 'disabled'
 export interface GovernancePolicy {
   id: string
   protocol: string
-  protocolIcon: string  /* single letter or icon key: Blend, Soroban, etc. */
-  protocolColor: string /* tailwind or hex: blue, orange, green */
+  protocolIcon: string
+  protocolColor: string
   policyDescription: string
   policyValue: number
-  valueUnit: string     /* e.g. "XLM", "Units" */
-  lastModified: string /* e.g. "Oct 24, 2023" */
+  valueUnit: string
+  lastModified: string
   status: GovernanceStatus
+}
+
+/** Transactions for Reports */
+export type TransactionStatus = 'Aceptada' | 'Rechazada'
+
+export interface Transaction {
+  id: string
+  date: string
+  walletAddress: string
+  protocol: string
+  amount: number
+  status: TransactionStatus
+}
+
+export interface ReportStats {
+  totalTransactions: number
+  totalGrowth: number
+  accepted: number
+  acceptedGrowth: number
+  rejected: number
+  rejectedGrowth: number
+  totalVolume: number
+  volumeGrowth: number
 }
 
